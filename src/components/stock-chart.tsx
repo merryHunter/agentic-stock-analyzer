@@ -73,8 +73,6 @@ const StockChart: React.FC<StockChartProps> = ({ data }) => {
         value: d.volume,
         color: d.close >= d.open ? 'rgba(38, 166, 154, 0.5)' : 'rgba(239, 83, 80, 0.5)',
     }));
-    console.log(formattedData[0]);
-    console.log(volumeData[0]);
     candlestickSeries.setData(formattedData);
     volumeSeries.setData(volumeData);
 

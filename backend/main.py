@@ -1,15 +1,22 @@
 import json
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from typing import List, Optional
 from datetime import date
 import yfinance as yf
 import pandas as pd
+from dotenv import load_dotenv
+import os
+from langchain_core.messages import HumanMessage, AIMessage
 
+
+load_dotenv()
+
+from chat_logic import graph
 app = FastAPI()
 
-# Configure CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000"],  # Allows requests from our Next.js app
@@ -32,12 +39,19 @@ class TickerFilter(BaseModel):
     period_end: date
     interval: str = "1d"
 
+class ChatMessage(BaseModel):
+    role: str
+    content: str
+
+class ChatRequest(BaseModel):
+    messages: List[ChatMessage]
 
 # --- API Endpoints ---
 
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
 
 
 @app.post("/api/news/search")
@@ -97,3 +111,33 @@ def search_tickers(filter: TickerFilter):
     except Exception as e:
         print(e)
         raise HTTPException(status_code=500, detail=str(e)) 
+    
+
+@app.post("/api/chat")
+async def chat(chat_request: ChatRequest):
+    try:
+        # Convert the incoming messages to the format LangChain expects
+        messages = []
+        for msg in chat_request.messages:
+            if msg.role == "user":
+                messages.append(HumanMessage(content=msg.content))
+            else:  # role is 'bot' or 'assistant'
+                messages.append(AIMessage(content=msg.content))
+        
+        state = {"messages": messages}
+
+        async def event_stream():
+            # Use the astream_events method to get real-time events
+            async for event in graph.astream_events(state, version="v1"):
+                kind = event["event"]
+                if kind == "on_chat_model_stream":
+                    content = event["data"]["chunk"].content
+                    if content:
+                        yield f"data: {content}\n\n"
+        
+        return StreamingResponse(event_stream(), media_type="text/event-stream")
+
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail=str(e))
+

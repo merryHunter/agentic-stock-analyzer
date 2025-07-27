@@ -1,19 +1,12 @@
 "use client";
 import React from 'react';
+import { Message } from './chat-sidebar'; // Import the shared Message interface
 
-// This will be expanded later to include message content, sender, etc.
-interface Message {
-  id: number;
-  text: string;
-  sender: 'user' | 'bot';
+interface ChatMessageHistoryProps {
+  messages: Message[];
 }
 
-const ChatMessageHistory = () => {
-  // Placeholder for message state
-  const messages: Message[] = [
-    { id: 1, text: "Welcome! How can I help you analyze stocks today?", sender: 'bot' }
-  ];
-
+const ChatMessageHistory: React.FC<ChatMessageHistoryProps> = ({ messages }) => {
   return (
     <div className="flex-grow p-4 overflow-y-auto">
       {messages.map((message) => (

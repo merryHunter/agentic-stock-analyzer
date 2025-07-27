@@ -4,6 +4,8 @@
 
 backend/.venv/
 backend/__pycache__/
+backend/tests/__pycache__/
+
 # dependencies
 /node_modules
 /.pnp
