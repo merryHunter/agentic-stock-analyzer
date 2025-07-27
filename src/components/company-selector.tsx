@@ -1,7 +1,12 @@
 "use client";
-import React from 'react';
+import React, { useId } from 'react';
+import Select from 'react-select';
+import { popularTickers, getCompanyNameFromTicker } from '@/lib/ticker-utils';
 
-const popularTickers = ["NVDA", "MSFT", "AAPL", "AMZN", "META", "AVGO", "GOOGL", "GOOG", "BRK.B", "TSLA", "JPM", "WMT", "LLY", "V", "ORCL", "MA", "NFLX", "XOM", "COST", "JNJ", "PLTR", "HD", "PG", "BAC", "ABBV", "CVX", "KO", "GE", "TMUS", "CSCO", "WFC", "AMD", "CRM", "UNH", "PM", "IBM", "MS", "GS", "LIN", "ABT", "INTU", "DIS", "AXP", "MCD", "MRK", "RTX", "CAT", "NOW", "T", "PEP"];
+const options = popularTickers.map(ticker => ({
+    value: ticker,
+    label: `${ticker} - ${getCompanyNameFromTicker(ticker)}`
+}));
 
 interface CompanySelectorProps {
   onTickerSelect: (ticker: string) => void;
@@ -9,60 +14,61 @@ interface CompanySelectorProps {
 }
 
 const CompanySelector: React.FC<CompanySelectorProps> = ({ onTickerSelect, selectedTicker }) => {
+  const selectedOption = options.find(option => option.value === selectedTicker);
+
+  const customStyles = {
+    control: (provided: any) => ({
+      ...provided,
+      background: '#0f172a',
+      border: '1px solid #4a5568',
+      borderRadius: '8px',
+      padding: '6px',
+      color: '#f1f5f9',
+      minHeight: '50px',
+      boxShadow: 'none',
+      '&:hover': {
+        borderColor: '#a0aec0',
+      },
+    }),
+    menu: (provided: any) => ({
+      ...provided,
+      background: '#0f172a',
+      border: '1px solid #4a5568',
+      borderRadius: '8px',
+      color: '#f1f5f9',
+      zIndex: 9999,
+    }),
+    menuList: (provided: any) => ({
+        ...provided,
+        maxHeight: '200px',
+    }),
+    option: (provided: any, state: { isFocused: any; isSelected: any; }) => ({
+      ...provided,
+      background: state.isFocused ? '#1e293b' : 'transparent',
+      color: state.isSelected ? '#22c55e' : '#f1f5f9',
+      '&:active': {
+        background: '#4a5568',
+      },
+    }),
+    singleValue: (provided: any) => ({
+      ...provided,
+      color: '#f1f5f9',
+    }),
+    input: (provided: any) => ({
+      ...provided,
+      color: '#f1f5f9',
+    }),
+  };
+
   return (
-    <div>
-      <label htmlFor="ticker-select" style={{ 
-        position: 'absolute',
-        width: '1px',
-        height: '1px',
-        padding: 0,
-        margin: '-1px',
-        overflow: 'hidden',
-        clip: 'rect(0, 0, 0, 0)',
-        border: 0
-      }}>
-        Select a stock ticker
-      </label>
-      <select
-        id="ticker-select"
-        value={selectedTicker}
-        onChange={(e) => onTickerSelect(e.target.value)}
-        style={{
-          display: 'block',
-          width: '100%',
-          padding: '12px 16px',
-          background: 'rgba(15, 23, 42, 0.8)',
-          border: '1px solid rgba(148, 163, 184, 0.2)',
-          borderRadius: '8px',
-          color: '#f1f5f9',
-          fontSize: '0.9rem',
-          outline: 'none',
-          cursor: 'pointer',
-          transition: 'all 0.3s ease'
-        }}
-        onFocus={(e) => {
-          e.currentTarget.style.borderColor = 'rgba(100, 116, 139, 0.5)';
-          e.currentTarget.style.background = 'rgba(15, 23, 42, 1)';
-        }}
-        onBlur={(e) => {
-          e.currentTarget.style.borderColor = 'rgba(148, 163, 184, 0.2)';
-          e.currentTarget.style.background = 'rgba(15, 23, 42, 0.8)';
-        }}
-      >
-        <option value="" disabled style={{ background: 'rgba(15, 23, 42, 1)', color: '#94a3b8' }}>
-          Select a ticker
-        </option>
-        {popularTickers.map(ticker => (
-          <option 
-            key={ticker} 
-            value={ticker}
-            style={{ background: 'rgba(15, 23, 42, 1)', color: '#f1f5f9' }}
-          >
-            {ticker}
-          </option>
-        ))}
-      </select>
-    </div>
+    <Select
+      instanceId={useId()}
+      value={selectedOption}
+      onChange={(option) => onTickerSelect(option ? option.value : '')}
+      options={options}
+      styles={customStyles}
+      placeholder="Select or search for a ticker..."
+    />
   );
 };
 

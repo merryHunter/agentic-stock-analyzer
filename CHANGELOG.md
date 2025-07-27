@@ -1,3 +1,7 @@
+# 0.0.3
+- added basic news API to retrieve news related to main known tickers
+- LLM powered price prediction analysis with Langchain and o3-mini
+
 # 0.0.2
 - backend ticker data with yfinance
 - beautiful UI, ticker chart for selected company 
