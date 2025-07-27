@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<!-- 
+    This is a sample HTML file for the stock trading dashboard.
+     Generated with Claude 4.0 Sonnet.
+-->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StockTrader Pro</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            color: #e2e8f0;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 350px 1fr 380px;
+            height: 100vh;
+            gap: 1px;
+            background: #0f172a;
+        }
+
+        .panel {
+            background: rgba(30, 41, 59, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #64748b, #475569, #64748b);
+            opacity: 0.6;
+        }
+
+        /* Left Sidebar - News */
+        .news-panel {
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+        }
+
+        .panel-header h2 {
+            color: #f1f5f9;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .icon {
+            width: 20px;
+            height: 20px;
+            fill: #64748b;
+        }
+
+        .news-item {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .news-item:hover {
+            background: rgba(15, 23, 42, 1);
+            border-color: rgba(100, 116, 139, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .news-title {
+            color: #f1f5f9;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .news-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .news-time {
+            color: #94a3b8;
+            font-size: 0.8rem;
+        }
+
+        .prediction {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .prediction.bullish {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .prediction.bearish {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .prediction.neutral {
+            background: rgba(100, 116, 139, 0.2);
+            color: #64748b;
+            border: 1px solid rgba(100, 116, 139, 0.3);
+        }
+
+        .news-excerpt {
+            color: #cbd5e1;
+            font-size: 0.85rem;
+            line-height: 1.4;
+        }
+
+        /* Center Panel - Chart */
+        .chart-panel {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .stock-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .stock-symbol {
+            color: #f1f5f9;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .stock-price {
+            color: #22c55e;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .stock-change {
+            color: #22c55e;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .chart-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .time-btn {
+            background: rgba(100, 116, 139, 0.2);
+            border: 1px solid rgba(100, 116, 139, 0.3);
+            color: #94a3b8;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .time-btn:hover, .time-btn.active {
+            background: rgba(100, 116, 139, 0.4);
+            border-color: #64748b;
+            color: #f1f5f9;
+        }
+
+        .chart-container {
+            flex: 1;
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid rgba(148, 163, 184, 0.1);
+        }
+
+        /* Right Panel - Chat */
+        .chat-panel {
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            padding-right: 10px;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            max-width: 85%;
+            animation: slideIn 0.3s ease;
+        }
+
+        .message.user {
+            background: rgba(100, 116, 139, 0.3);
+            border: 1px solid rgba(100, 116, 139, 0.4);
+            margin-left: auto;
+            color: #f1f5f9;
+        }
+
+        .message.bot {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            color: #e2e8f0;
+        }
+
+        .message-time {
+            font-size: 0.7rem;
+            color: #94a3b8;
+            margin-top: 5px;
+        }
+
+        .chat-input-container {
+            display: flex;
+            gap: 10px;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 8px;
+            padding: 10px;
+        }
+
+        .chat-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #f1f5f9;
+            font-size: 0.9rem;
+        }
+
+        .chat-input::placeholder {
+            color: #94a3b8;
+        }
+
+        .send-btn {
+            background: linear-gradient(135deg, #64748b, #475569);
+            border: none;
+            border-radius: 6px;
+            padding: 8px 12px;
+            color: #f1f5f9;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .send-btn:hover {
+            background: linear-gradient(135deg, #475569, #334155);
+            transform: translateY(-1px);
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.5);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(100, 116, 139, 0.5);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(100, 116, 139, 0.7);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .typing-indicator {
+            display: none;
+            padding: 12px 16px;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            border-radius: 12px;
+            max-width: 85%;
+            margin-bottom: 15px;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .dot {
+            width: 6px;
+            height: 6px;
+            background: #64748b;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+
+        .dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: translateY(0);
+                opacity: 0.4;
+            }
+            30% {
+                transform: translateY(-10px);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Left Sidebar - News -->
+        <div class="panel news-panel">
+            <div class="panel-header">
+                <svg class="icon" viewBox="0 0 20 20">
+                    <path d="M2 3a1 1 0 011-1h1a1 1 0 011 1v3a1 1 0 01-1 1H3a1 1 0 01-1-1V3zM6 3a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zM6 7a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zM6 11a1 1 0 011-1h3a1 1 0 110 2H7a1 1 0 01-1-1z"/>
+                </svg>
+                <h2>Market News & Predictions</h2>
+            </div>
+            
+            <div class="news-item">
+                <div class="news-meta">
+                    <div class="news-time">2 minutes ago</div>
+                    <div class="prediction bullish">BULLISH</div>
+                </div>
+                <div class="news-title">AAPL Q4 Earnings Beat Expectations</div>
+                <div class="news-excerpt">Apple reports stronger than expected revenue growth driven by iPhone 15 sales and services segment expansion...</div>
+            </div>
+
+            <div class="news-item">
+                <div class="news-meta">
+                    <div class="news-time">15 minutes ago</div>
+                    <div class="prediction bearish">BEARISH</div>
+                </div>
+                <div class="news-title">Fed Signals Potential Rate Hikes</div>
+                <div class="news-excerpt">Federal Reserve officials hint at possible interest rate increases amid persistent inflation concerns...</div>
+            </div>
+
+            <div class="news-item">
+                <div class="news-meta">
+                    <div class="news-time">32 minutes ago</div>
+                    <div class="prediction bullish">BULLISH</div>
+                </div>
+                <div class="news-title">TSLA Unveils New Battery Technology</div>
+                <div class="news-excerpt">Tesla announces breakthrough in battery efficiency, potentially reducing production costs by 30%...</div>
+            </div>
+
+            <div class="news-item">
+                <div class="news-meta">
+                    <div class="news-time">1 hour ago</div>
+                    <div class="prediction neutral">NEUTRAL</div>
+                </div>
+                <div class="news-title">Market Volatility Expected This Week</div>
+                <div class="news-excerpt">Analysts predict increased volatility as major earnings reports and economic data releases approach...</div>
+            </div>
+
+            <div class="news-item">
+                <div class="news-meta">
+                    <div class="news-time">1 hour ago</div>
+                    <div class="prediction bullish">BULLISH</div>
+                </div>
+                <div class="news-title">NVDA AI Chip Demand Surges</div>
+                <div class="news-excerpt">NVIDIA reports unprecedented demand for AI processors from enterprise customers, boosting revenue projections...</div>
+            </div>
+        </div>
+
+        <!-- Center Panel - Chart -->
+        <div class="panel chart-panel">
+            <div class="chart-header">
+                <div class="stock-info">
+                    <div class="stock-symbol">AAPL</div>
+                    <div class="stock-price">$185.47</div>
+                    <div class="stock-change">+2.34 (+1.28%)</div>
+                </div>
+                <div class="chart-controls">
+                    <button class="time-btn">1D</button>
+                    <button class="time-btn active">1W</button>
+                    <button class="time-btn">1M</button>
+                    <button class="time-btn">3M</button>
+                    <button class="time-btn">1Y</button>
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas id="stockChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Right Panel - Chat -->
+        <div class="panel chat-panel">
+            <div class="panel-header">
+                <svg class="icon" viewBox="0 0 20 20">
+                    <path d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z"/>
+                </svg>
+                <h2>Trading Assistant</h2>
+            </div>
+            
+            <div class="chat-messages" id="chatMessages">
+                <div class="message bot">
+                    <div>Hello! I'm your AI trading assistant. I can help you analyze stocks, interpret market trends, and answer trading questions. How can I assist you today?</div>
+                    <div class="message-time">Just now</div>
+                </div>
+                
+                <div class="message user">
+                    <div>What's your analysis on AAPL's recent performance?</div>
+                    <div class="message-time">2 min ago</div>
+                </div>
+                
+                <div class="message bot">
+                    <div>AAPL is showing strong bullish momentum. The recent earnings beat, combined with positive iPhone 15 reception and expanding services revenue, suggests continued upward trajectory. Key support at $175, resistance at $190.</div>
+                    <div class="message-time">1 min ago</div>
+                </div>
+
+                <div class="typing-indicator" id="typingIndicator">
+                    <div class="typing-dots">
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="chat-input-container">
+                <input type="text" class="chat-input" placeholder="Ask about stocks, trends, analysis..." id="chatInput">
+                <button class="send-btn" onclick="sendMessage()">
+                    <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Chart
+        const ctx = document.getElementById('stockChart').getContext('2d');
+        
+        // Generate sample stock data
+        const generateStockData = () => {
+            const data = [];
+            let price = 180;
+            for (let i = 0; i < 50; i++) {
+                price += (Math.random() - 0.5) * 4;
+                data.push({
+                    x: new Date(Date.now() - (49 - i) * 24 * 60 * 60 * 1000),
+                    y: Math.max(price, 150)
+                });
+            }
+            return data;
+        };
+
+        const stockChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                datasets: [{
+                    label: 'AAPL Stock Price',
+                    data: generateStockData(),
+                    borderColor: '#22c55e',
+                    backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.1,
+                    pointRadius: 0,
+                    pointHoverRadius: 6,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        type: 'time',
+                        time: {
+                            unit: 'day'
+                        },
+                        grid: {
+                            color: 'rgba(148, 163, 184, 0.1)'
+                        },
+                        ticks: {
+                            color: '#94a3b8'
+                        }
+                    },
+                    y: {
+                        grid: {
+                            color: 'rgba(148, 163, 184, 0.1)'
+                        },
+                        ticks: {
+                            color: '#94a3b8',
+                            callback: function(value) {
+                                return '$' + value.toFixed(2);
+                            }
+                        }
+                    }
+                },
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                }
+            }
+        });
+
+        // Chat functionality
+        const chatMessages = document.getElementById('chatMessages');
+        const chatInput = document.getElementById('chatInput');
+        const typingIndicator = document.getElementById('typingIndicator');
+
+        const botResponses = [
+            "Based on current market conditions, I'd recommend monitoring key support and resistance levels.",
+            "The technical indicators suggest a bullish trend, but keep an eye on volume patterns.",
+            "Market sentiment appears positive today. Consider the broader economic context in your analysis.",
+            "That's an interesting question. The fundamentals look strong, but always consider risk management.",
+            "I'd suggest looking at the sector performance and comparing it to the overall market trends."
+        ];
+
+        function sendMessage() {
+            const message = chatInput.value.trim();
+            if (!message) return;
+
+            // Add user message
+            addMessage(message, 'user');
+            chatInput.value = '';
+
+            // Show typing indicator
+            typingIndicator.style.display = 'block';
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            // Simulate bot response
+            setTimeout(() => {
+                typingIndicator.style.display = 'none';
+                const response = botResponses[Math.floor(Math.random() * botResponses.length)];
+                addMessage(response, 'bot');
+            }, 1500);
+        }
+
+        function addMessage(text, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            messageDiv.innerHTML = `
+                <div>${text}</div>
+                <div class="message-time">Just now</div>
+            `;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Enter key to send message
+        chatInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // Time period buttons
+        document.querySelectorAll('.time-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelector('.time-btn.active').classList.remove('active');
+                this.classList.add('active');
+                
+                // Update chart data based on selected period
+                stockChart.data.datasets[0].data = generateStockData();
+                stockChart.update();
+            });
+        });
+    </script>
+</body>
+</html>

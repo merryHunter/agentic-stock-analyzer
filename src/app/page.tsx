@@ -4,7 +4,7 @@ import MainView from "@/components/main-view";
 
 export default function Home() {
   return (
-    <div className="flex h-screen">
+    <div className="dashboard">
       <NewsSidebar />
       <MainView />
       <ChatSidebar />
