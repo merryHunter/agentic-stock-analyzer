@@ -1,4 +1,5 @@
 import json
+import warnings
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
@@ -11,6 +12,8 @@ from dotenv import load_dotenv
 import os
 from langchain_core.messages import HumanMessage, AIMessage
 
+# Suppress the duckduckgo_search package rename warning
+warnings.filterwarnings("ignore", message="This package \\(`duckduckgo_search`\\) has been renamed to `ddgs`!", category=RuntimeWarning)
 
 load_dotenv()
 
@@ -19,7 +22,11 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # Allows requests from our Next.js app
+    allow_origins=[
+        "http://localhost:3000", 
+        "https://*.vercel.app/"
+    ], 
+
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

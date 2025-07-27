@@ -27,8 +27,16 @@ const StockChart: React.FC<StockChartProps> = ({ data }) => {
 
     const chart = createChart(chartContainerRef.current, {
       layout: {
-        background: { type: ColorType.Solid, color: 'white' },
-        textColor: 'black',
+        background: { type: ColorType.Solid, color: 'transparent' },
+        textColor: '#94a3b8',
+      },
+      grid: {
+        vertLines: {
+          color: 'rgba(148, 163, 184, 0.1)',
+        },
+        horzLines: {
+          color: 'rgba(148, 163, 184, 0.1)',
+        },
       },
       width: chartContainerRef.current.clientWidth,
       height: 400,
@@ -36,16 +44,16 @@ const StockChart: React.FC<StockChartProps> = ({ data }) => {
     chart.timeScale().fitContent();
 
     const candlestickSeries = chart.addSeries(CandlestickSeries, {
-      upColor: '#26a69a',
-      downColor: '#ef5350',
-      borderDownColor: '#ef5350',
-      borderUpColor: '#26a69a',
-      wickDownColor: '#ef5350',
-      wickUpColor: '#26a69a',
+      upColor: '#22c55e',
+      downColor: '#ef4444',
+      borderDownColor: '#ef4444',
+      borderUpColor: '#22c55e',
+      wickDownColor: '#ef4444',
+      wickUpColor: '#22c55e',
     });
 
     const volumeSeries = chart.addSeries(HistogramSeries, {
-      color: 'rgba(38, 166, 154, 0.5)',
+      color: 'rgba(34, 197, 94, 0.3)',
       priceFormat: {
         type: 'volume',
       },
@@ -57,7 +65,6 @@ const StockChart: React.FC<StockChartProps> = ({ data }) => {
             bottom: 0,
         },
     });
-
 
     // The data from the backend is now clean, so we can use it directly.
     const formattedData = data.map(d => ({
@@ -71,7 +78,7 @@ const StockChart: React.FC<StockChartProps> = ({ data }) => {
     const volumeData = data.map(d => ({
         time: d.timestamp,
         value: d.volume,
-        color: d.close >= d.open ? 'rgba(38, 166, 154, 0.5)' : 'rgba(239, 83, 80, 0.5)',
+        color: d.close >= d.open ? 'rgba(34, 197, 94, 0.3)' : 'rgba(239, 68, 68, 0.3)',
     }));
     candlestickSeries.setData(formattedData);
     volumeSeries.setData(volumeData);
@@ -85,10 +92,20 @@ const StockChart: React.FC<StockChartProps> = ({ data }) => {
   }, [data]);
 
   if (!data || data.length === 0) {
-    return <div className="flex items-center justify-center h-[400px] text-gray-500">Select a ticker to view the chart.</div>;
+    return (
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '400px',
+        color: '#94a3b8'
+      }}>
+        Select a ticker to view the chart.
+      </div>
+    );
   }
 
-  return <div ref={chartContainerRef} className="w-full h-[400px]" />;
+  return <div ref={chartContainerRef} style={{ width: '100%', height: '400px' }} />;
 };
 
 export default StockChart; 
