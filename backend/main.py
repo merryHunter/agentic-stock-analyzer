@@ -65,7 +65,6 @@ def health():
 def search_news(filter: NewsFilter):
     # In a real application, you would use these filters to query a database.
     # For now, we'll just return some sample data that matches the structure.
-    print(f"Searching for news with filter: {filter.dict()}")
     sample_news = [
         {
             "headline": "Tesla investors are growing wary of Elon Musk’s futuristic promises",
