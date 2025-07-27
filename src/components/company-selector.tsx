@@ -16,8 +16,8 @@ interface CompanySelectorProps {
 const CompanySelector: React.FC<CompanySelectorProps> = ({ onTickerSelect, selectedTicker }) => {
   const selectedOption = options.find(option => option.value === selectedTicker);
 
-  const customStyles = {
-    control: (provided: any) => ({
+  const customStyles: import('react-select').StylesConfig<(typeof options)[number], false> = {
+    control: (provided) => ({
       ...provided,
       background: '#0f172a',
       border: '1px solid #4a5568',
@@ -30,7 +30,7 @@ const CompanySelector: React.FC<CompanySelectorProps> = ({ onTickerSelect, selec
         borderColor: '#a0aec0',
       },
     }),
-    menu: (provided: any) => ({
+    menu: (provided) => ({
       ...provided,
       background: '#0f172a',
       border: '1px solid #4a5568',
@@ -38,11 +38,11 @@ const CompanySelector: React.FC<CompanySelectorProps> = ({ onTickerSelect, selec
       color: '#f1f5f9',
       zIndex: 9999,
     }),
-    menuList: (provided: any) => ({
+    menuList: (provided) => ({
         ...provided,
         maxHeight: '200px',
     }),
-    option: (provided: any, state: { isFocused: any; isSelected: any; }) => ({
+    option: (provided, state) => ({
       ...provided,
       background: state.isFocused ? '#1e293b' : 'transparent',
       color: state.isSelected ? '#22c55e' : '#f1f5f9',
@@ -50,11 +50,11 @@ const CompanySelector: React.FC<CompanySelectorProps> = ({ onTickerSelect, selec
         background: '#4a5568',
       },
     }),
-    singleValue: (provided: any) => ({
+    singleValue: (provided) => ({
       ...provided,
       color: '#f1f5f9',
     }),
-    input: (provided: any) => ({
+    input: (provided) => ({
       ...provided,
       color: '#f1f5f9',
     }),

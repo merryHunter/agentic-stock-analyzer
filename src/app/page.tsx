@@ -31,6 +31,8 @@ export default function Home() {
 
     const fetchNewsData = async () => {
       setIsNewsLoading(true);
+      setNews([]);
+      setSummary('');
       try {
         const backendHost = process.env.NEXT_PUBLIC_BACKEND_HOST;
         const companyName = getCompanyNameFromTicker(selectedTicker);
@@ -62,7 +64,6 @@ export default function Home() {
   return (
     <div className="dashboard">
       <NewsSidebar 
-        selectedTicker={selectedTicker}
         news={news}
         isLoading={isNewsLoading}
       />
@@ -71,6 +72,7 @@ export default function Home() {
         onTickerSelect={setSelectedTicker}
         summary={summary}
         overallChange={overallChange}
+        isNewsLoading={isNewsLoading}
       />
       <ChatSidebar />
     </div>

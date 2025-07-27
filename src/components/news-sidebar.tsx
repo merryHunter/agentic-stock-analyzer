@@ -5,12 +5,11 @@ import { NewsArticle } from '@/lib/definitions';
 import { LoadingSpinner } from './loading-spinner';
 
 interface NewsSidebarProps {
-  selectedTicker: string;
   news: NewsArticle[];
   isLoading: boolean;
 }
 
-const NewsSidebar: React.FC<NewsSidebarProps> = ({ selectedTicker, news, isLoading }) => {
+const NewsSidebar: React.FC<NewsSidebarProps> = ({ news, isLoading }) => {
   const getPrediction = (movement: number) => {
     if (movement > 2) return { label: "BULLISH", class: "bullish" };
     if (movement < -2) return { label: "BEARISH", class: "bearish" };

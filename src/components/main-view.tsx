@@ -3,13 +3,14 @@
 import React, { useState, useEffect } from 'react';
 import CompanySelector from './company-selector';
 import StockChart from './stock-chart';
-import { NewsArticle } from '@/lib/definitions';
+import { LoadingSpinner } from './loading-spinner';
 
 interface MainViewProps {
   selectedTicker: string;
   onTickerSelect: (ticker: string) => void;
   summary: string;
   overallChange: number;
+  isNewsLoading: boolean;
 }
 
 interface StockDataPoint {
@@ -29,11 +30,10 @@ const mockData: StockDataPoint[] = [
   { timestamp: '2024-07-08', open: 210.10, high: 211.43, low: 208.45, close: 210.01, volume: 42848900 },
 ];
 
-const MainView: React.FC<MainViewProps> = ({ selectedTicker, onTickerSelect, summary, overallChange }) => {
+const MainView: React.FC<MainViewProps> = ({ selectedTicker, onTickerSelect, summary, overallChange, isNewsLoading }) => {
   const [stockData, setStockData] = useState<StockDataPoint[]>([]); // Initialize with empty array
   const [isLoading, setIsLoading] = useState<boolean>(true); // Start in loading state
   const [error, setError] = useState<string | null>(null);
-  const [activeTimeframe, setActiveTimeframe] = useState<string>('1W');
   const [currentPrice, setCurrentPrice] = useState<number>(185.47);
   const [priceChange, setPriceChange] = useState<number>(2.34);
   const [percentChange, setPercentChange] = useState<number>(1.28);
@@ -87,8 +87,6 @@ const MainView: React.FC<MainViewProps> = ({ selectedTicker, onTickerSelect, sum
 
     fetchStockData();
   }, [selectedTicker]);
-
-  const timeframes = ['1D', '1W', '1M', '3M', '1Y'];
 
   return (
     <div style={{ display: 'flex', flex: 1, flexDirection: 'column' }}>
@@ -192,25 +190,31 @@ const MainView: React.FC<MainViewProps> = ({ selectedTicker, onTickerSelect, sum
           flexDirection: 'column',
           justifyContent: 'space-between'
         }}>
-          <div style={{ color: '#f1f5f9', fontWeight: '600', marginBottom: '10px', fontSize: '1.1rem' }}>
-            AI-Powered Summary
-          </div>
-          <div style={{ color: '#cbd5e1', fontSize: '1rem', marginBottom: '10px', flex: 1, overflowY: 'auto' }}>
-            {summary || "No summary available."}
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '10px' }}>
-            <div style={{ color: '#94a3b8', fontSize: '0.9rem' }}>Predicted Price Change:</div>
-            <div style={{
-              padding: '6px 10px',
-              borderRadius: '6px',
-              fontSize: '1rem',
-              fontWeight: '600',
-              background: overallChange > 0 ? 'rgba(34, 197, 94, 0.2)' : overallChange < 0 ? 'rgba(239, 68, 68, 0.2)' : 'rgba(100, 116, 139, 0.2)',
-              color: overallChange > 0 ? '#22c55e' : overallChange < 0 ? '#ef4444' : '#64748b',
-            }}>
-              {overallChange > 0 ? '▲' : overallChange < 0 ? '▼' : ''} {overallChange}
-            </div>
-          </div>
+          {isNewsLoading ? (
+            <LoadingSpinner />
+          ) : (
+            <>
+              <div style={{ color: '#f1f5f9', fontWeight: '600', marginBottom: '10px', fontSize: '1.1rem' }}>
+                AI-Powered Summary
+              </div>
+              <div style={{ color: '#cbd5e1', fontSize: '1rem', marginBottom: '10px', flex: 1, overflowY: 'auto' }}>
+                {summary || "No summary available."}
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '10px' }}>
+                <div style={{ color: '#94a3b8', fontSize: '0.9rem' }}>Predicted Price Change:</div>
+                <div style={{
+                  padding: '6px 10px',
+                  borderRadius: '6px',
+                  fontSize: '1rem',
+                  fontWeight: '600',
+                  background: overallChange > 0 ? 'rgba(34, 197, 94, 0.2)' : overallChange < 0 ? 'rgba(239, 68, 68, 0.2)' : 'rgba(100, 116, 139, 0.2)',
+                  color: overallChange > 0 ? '#22c55e' : overallChange < 0 ? '#ef4444' : '#64748b',
+                }}>
+                  {overallChange > 0 ? '▲' : overallChange < 0 ? '▼' : ''} {overallChange}
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>
