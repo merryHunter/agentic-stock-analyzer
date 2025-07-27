@@ -1,7 +1,7 @@
 "use client";
 import React from 'react';
 
-const popularTickers = ["AAPL", "GOOGL", "MSFT", "AMZN", "TSLA", "META"];
+const popularTickers = ["NVDA", "MSFT", "AAPL", "AMZN", "META", "AVGO", "GOOGL", "GOOG", "BRK.B", "TSLA", "JPM", "WMT", "LLY", "V", "ORCL", "MA", "NFLX", "XOM", "COST", "JNJ", "PLTR", "HD", "PG", "BAC", "ABBV", "CVX", "KO", "GE", "TMUS", "CSCO", "WFC", "AMD", "CRM", "UNH", "PM", "IBM", "MS", "GS", "LIN", "ABT", "INTU", "DIS", "AXP", "MCD", "MRK", "RTX", "CAT", "NOW", "T", "PEP"];
 
 interface CompanySelectorProps {
   onTickerSelect: (ticker: string) => void;

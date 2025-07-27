@@ -10,7 +10,11 @@ interface NewsArticle {
   movement: number;
 }
 
-const NewsSidebar = () => {
+interface NewsSidebarProps {
+  selectedTicker: string;
+}
+
+const NewsSidebar: React.FC<NewsSidebarProps> = ({ selectedTicker }) => {
   const [news, setNews] = useState<NewsArticle[]>([]);
 
   useEffect(() => {
@@ -24,6 +28,7 @@ const NewsSidebar = () => {
           },
           body: JSON.stringify({
             // Default filter: can be connected to state later
+            ticker: selectedTicker,
             period_start: "2025-07-20",
             period_end: "2025-07-28",
           }),
@@ -74,7 +79,7 @@ const NewsSidebar = () => {
     };
 
     fetchNews();
-  }, []);
+  }, [selectedTicker]);
 
   const getPrediction = (movement: number) => {
     if (movement > 2) return { label: "BULLISH", class: "bullish" };

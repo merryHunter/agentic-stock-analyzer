@@ -3,6 +3,13 @@
 import React, { useState, useEffect } from 'react';
 import CompanySelector from './company-selector';
 import StockChart from './stock-chart';
+import NewsSidebar from './news-sidebar';
+
+
+interface MainViewProps {
+  selectedTicker: string;
+  onTickerSelect: (ticker: string) => void;
+}
 
 interface StockDataPoint {
   timestamp: string;
@@ -21,8 +28,7 @@ const mockData: StockDataPoint[] = [
   { timestamp: '2024-07-08', open: 210.10, high: 211.43, low: 208.45, close: 210.01, volume: 42848900 },
 ];
 
-const MainView = () => {
-  const [selectedTicker, setSelectedTicker] = useState<string>('AAPL');
+const MainView: React.FC<MainViewProps> = ({ selectedTicker, onTickerSelect }) => {
   const [stockData, setStockData] = useState<StockDataPoint[]>([]); // Initialize with empty array
   const [isLoading, setIsLoading] = useState<boolean>(true); // Start in loading state
   const [error, setError] = useState<string | null>(null);
@@ -84,93 +90,95 @@ const MainView = () => {
   const timeframes = ['1D', '1W', '1M', '3M', '1Y'];
 
   return (
-    <div className="panel chart-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-          <div style={{ color: '#f1f5f9', fontSize: '1.8rem', fontWeight: '700' }}>
-            {selectedTicker}
+    <div style={{ display: 'flex', flex: 1, flexDirection: 'column' }}>
+      <div className="panel chart-panel" style={{ flex: 1, padding: '20px', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+            <div style={{ color: '#f1f5f9', fontSize: '1.8rem', fontWeight: '700' }}>
+              {selectedTicker}
+            </div>
+            <div style={{ color: '#22c55e', fontSize: '1.5rem', fontWeight: '600' }}>
+              ${currentPrice.toFixed(2)}
+            </div>
+            <div style={{ 
+              color: priceChange >= 0 ? '#22c55e' : '#ef4444', 
+              fontSize: '1rem', 
+              fontWeight: '500' 
+            }}>
+              {priceChange >= 0 ? '+' : ''}{priceChange.toFixed(2)} ({percentChange >= 0 ? '+' : ''}{percentChange.toFixed(2)}%)
+            </div>
           </div>
-          <div style={{ color: '#22c55e', fontSize: '1.5rem', fontWeight: '600' }}>
-            ${currentPrice.toFixed(2)}
-          </div>
-          <div style={{ 
-            color: priceChange >= 0 ? '#22c55e' : '#ef4444', 
-            fontSize: '1rem', 
-            fontWeight: '500' 
-          }}>
-            {priceChange >= 0 ? '+' : ''}{priceChange.toFixed(2)} ({percentChange >= 0 ? '+' : ''}{percentChange.toFixed(2)}%)
+          <div style={{ display: 'flex', gap: '10px' }}>
+            {timeframes.map((timeframe) => (
+              <button
+                key={timeframe}
+                onClick={() => setActiveTimeframe(timeframe)}
+                style={{
+                  background: activeTimeframe === timeframe ? 'rgba(100, 116, 139, 0.4)' : 'rgba(100, 116, 139, 0.2)',
+                  border: `1px solid ${activeTimeframe === timeframe ? '#64748b' : 'rgba(100, 116, 139, 0.3)'}`,
+                  color: activeTimeframe === timeframe ? '#f1f5f9' : '#94a3b8',
+                  padding: '8px 16px',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                  fontSize: '0.9rem'
+                }}
+                onMouseEnter={(e) => {
+                  if (activeTimeframe !== timeframe) {
+                    e.currentTarget.style.background = 'rgba(100, 116, 139, 0.4)';
+                    e.currentTarget.style.borderColor = '#64748b';
+                    e.currentTarget.style.color = '#f1f5f9';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (activeTimeframe !== timeframe) {
+                    e.currentTarget.style.background = 'rgba(100, 116, 139, 0.2)';
+                    e.currentTarget.style.borderColor = 'rgba(100, 116, 139, 0.3)';
+                    e.currentTarget.style.color = '#94a3b8';
+                  }
+                }}
+              >
+                {timeframe}
+              </button>
+            ))}
           </div>
         </div>
-        <div style={{ display: 'flex', gap: '10px' }}>
-          {timeframes.map((timeframe) => (
-            <button
-              key={timeframe}
-              onClick={() => setActiveTimeframe(timeframe)}
-              style={{
-                background: activeTimeframe === timeframe ? 'rgba(100, 116, 139, 0.4)' : 'rgba(100, 116, 139, 0.2)',
-                border: `1px solid ${activeTimeframe === timeframe ? '#64748b' : 'rgba(100, 116, 139, 0.3)'}`,
-                color: activeTimeframe === timeframe ? '#f1f5f9' : '#94a3b8',
-                padding: '8px 16px',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                fontSize: '0.9rem'
-              }}
-              onMouseEnter={(e) => {
-                if (activeTimeframe !== timeframe) {
-                  e.currentTarget.style.background = 'rgba(100, 116, 139, 0.4)';
-                  e.currentTarget.style.borderColor = '#64748b';
-                  e.currentTarget.style.color = '#f1f5f9';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (activeTimeframe !== timeframe) {
-                  e.currentTarget.style.background = 'rgba(100, 116, 139, 0.2)';
-                  e.currentTarget.style.borderColor = 'rgba(100, 116, 139, 0.3)';
-                  e.currentTarget.style.color = '#94a3b8';
-                }
-              }}
-            >
-              {timeframe}
-            </button>
-          ))}
+        
+        <div style={{ marginBottom: '20px' }}>
+          <CompanySelector onTickerSelect={onTickerSelect} selectedTicker={selectedTicker} />
         </div>
-      </div>
-      
-      <div style={{ marginBottom: '20px' }}>
-        <CompanySelector onTickerSelect={setSelectedTicker} selectedTicker={selectedTicker} />
-      </div>
 
-      <div style={{
-        flex: 1,
-        background: 'rgba(15, 23, 42, 0.6)',
-        borderRadius: '8px',
-        padding: '20px',
-        border: '1px solid rgba(148, 163, 184, 0.1)'
-      }}>
-        {isLoading && (
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            height: '400px',
-            color: '#94a3b8'
-          }}>
-            Loading chart data...
-          </div>
-        )}
-        {error && (
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            height: '400px',
-            color: '#ef4444'
-          }}>
-            Error: {error}
-          </div>
-        )}
-        {!isLoading && !error && <StockChart data={stockData} />}
+        <div style={{
+          flex: 1,
+          background: 'rgba(15, 23, 42, 0.6)',
+          borderRadius: '8px',
+          padding: '20px',
+          border: '1px solid rgba(148, 163, 184, 0.1)'
+        }}>
+          {isLoading && (
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              height: '400px',
+              color: '#94a3b8'
+            }}>
+              Loading chart data...
+            </div>
+          )}
+          {error && (
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              height: '400px',
+              color: '#ef4444'
+            }}>
+              Error: {error}
+            </div>
+          )}
+          {!isLoading && !error && <StockChart data={stockData} />}
+        </div>
       </div>
     </div>
   );
