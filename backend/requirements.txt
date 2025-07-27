@@ -13,3 +13,10 @@ python-multipart
 pytest
 pytest-asyncio
 pytest-dotenv
+# News crawler dependencies
+crawl4ai
+beautifulsoup4
+aiohttp
+textblob
+newspaper3k
+python-dateutil
