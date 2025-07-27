@@ -35,6 +35,11 @@ class TickerFilter(BaseModel):
 
 # --- API Endpoints ---
 
+@app.get("/health")
+def health():
+    return {"status": "ok"}
+
+
 @app.post("/api/news/search")
 def search_news(filter: NewsFilter):
     # In a real application, you would use these filters to query a database.

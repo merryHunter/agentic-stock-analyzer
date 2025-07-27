@@ -36,7 +36,8 @@ const MainView = () => {
       setIsLoading(true);
       setError(null);
       try {
-        const response = await fetch('http://localhost:8000/api/tickers/search', {
+        const backendHost = process.env.NEXT_PUBLIC_BACKEND_HOST;
+        const response = await fetch(`${backendHost}/api/tickers/search`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

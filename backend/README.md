@@ -11,6 +11,19 @@ uv pip install -r requirements.txt
 
 `uv run uvicorn main:app --reload`
 
+
+## Deploy to Fly.io
+
+Instal `flyctl` and run from `backend` folder:
+
+```bash
+fly auth login
+fly launch
+```
+
+Enter deployed app hostname variable as `NEXT_PUBLIC_BACKEND_HOST` into .env.local and Vercel Env variables.
+ 
+
 ## API Routes
 
 The API uses a `POST` request with a JSON body for filtering to provide a flexible and powerful querying interface.

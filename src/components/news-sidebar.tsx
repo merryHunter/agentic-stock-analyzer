@@ -16,7 +16,8 @@ const NewsSidebar = () => {
   useEffect(() => {
     const fetchNews = async () => {
       try {
-        const response = await fetch('http://localhost:8000/api/news/search', {
+        const backendHost = process.env.NEXT_PUBLIC_BACKEND_HOST;
+        const response = await fetch(`${backendHost}/api/news/search`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
